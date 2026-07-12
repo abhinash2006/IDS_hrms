@@ -1,3 +1,8 @@
+const offerRepository =
+require(
+    "../repositories/offer.repository"
+);
+
 const PDFDocument =
 require("pdfkit");
 
@@ -7,15 +12,32 @@ require("fs");
 const path =
 require("path");
 
-const offerRepository =
-require(
-    "../repositories/offer.repository"
-);
-
 const candidateRepository =
 require(
     "../repositories/candidate.repository"
 );
+
+const createOffer =
+async (
+    offerData
+) => {
+
+    return await
+        offerRepository
+        .createOffer(
+            offerData
+        );
+
+};
+
+const getOffers =
+async () => {
+
+    return await
+        offerRepository
+        .getOffers();
+
+};
 
 const generateOfferLetter =
 async (
@@ -28,7 +50,7 @@ async (
             offerId
         );
 
-    if (!offer) {
+    if(!offer){
 
         throw new Error(
             "Offer not found"
@@ -42,7 +64,7 @@ async (
             offer.candidate_id
         );
 
-    if (!candidate) {
+    if(!candidate){
 
         throw new Error(
             "Candidate not found"
@@ -50,81 +72,99 @@ async (
 
     }
 
-    const pdfPath =
+    const pdfDir =
         path.join(
             __dirname,
             "..",
-            "pdfs",
-            `offer_${offerId}.pdf`
+            "pdfs"
         );
 
-    const doc =
-        new PDFDocument();
-
-    doc.pipe(
-        fs.createWriteStream(
-            pdfPath
+    if(
+        !fs.existsSync(
+            pdfDir
         )
+    ){
+
+        fs.mkdirSync(
+            pdfDir
+        );
+
+    }
+
+    const pdfPath =
+    path.join(
+        pdfDir,
+        `offer_${offerId}.pdf`
     );
 
-    doc.fontSize(20)
-    .text(
-        "ABC Technologies Pvt Ltd",
-        {
-            align:"center"
-        }
+const doc =
+    new PDFDocument();
+
+const stream =
+    fs.createWriteStream(
+        pdfPath
     );
 
-    doc.moveDown();
+doc.pipe(stream);
 
-    doc.fontSize(14)
-    .text(
-        `Date: ${new Date().toLocaleDateString()}`
-    );
+doc.fontSize(20)
+.text(
+    "ABC Technologies Pvt Ltd",
+    {
+        align: "center"
+    }
+);
 
-    doc.moveDown();
+doc.moveDown();
 
-    doc.text(
-        `Dear ${candidate.first_name} ${candidate.last_name},`
-    );
+doc.text(
+    `Dear ${candidate.first_name} ${candidate.last_name}`
+);
 
-    doc.moveDown();
+doc.moveDown();
 
-    doc.text(
-        `We are pleased to offer you the position of ${offer.offer_title}.`
-    );
+doc.text(
+    `Position: ${offer.offer_title}`
+);
 
-    doc.moveDown();
+doc.text(
+    `Joining Date: ${offer.joining_date}`
+);
 
-    doc.text(
-        `Joining Date: ${offer.joining_date}`
-    );
+doc.text(
+    `Salary: ₹${offer.salary}`
+);
 
-    doc.text(
-        `Salary: ₹${offer.salary}`
-    );
+doc.moveDown();
 
-    doc.moveDown();
+doc.text(
+    "Welcome to our company."
+);
 
-    doc.text(
-        "We look forward to having you on our team."
-    );
+doc.end();
 
-    doc.moveDown();
+await new Promise(
+    (resolve, reject) => {
 
-    doc.text(
-        "Regards,"
-    );
+        stream.on(
+            "finish",
+            resolve
+        );
 
-    doc.text(
-        "HR Department"
-    );
+        stream.on(
+            "error",
+            reject
+        );
 
-    doc.end();
+    }
+);
 
-    return pdfPath;
+return pdfPath;
+
 };
 
 module.exports = {
+    createOffer,
+    getOffers,
     generateOfferLetter
 };

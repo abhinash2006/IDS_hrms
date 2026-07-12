@@ -3,6 +3,8 @@ import {
     useState
 } from "react";
 
+import "../styles/Employees.css";
+
 import DataTable
 from "../components/DataTable";
 
@@ -12,7 +14,27 @@ import {
     updateEmployee,
     deleteEmployee
 }
+
 from "../api/employeeApi";
+import {
+    toast
+} from "react-toastify";
+
+import {
+    getEmployeeUsers
+}
+from "../api/userApi";
+
+import {
+    employeeSchema
+}
+from "../validations/employeeValidation";
+
+import Loader
+from "../components/Loader";
+
+import Modal
+from "../components/Modal";
 
 function Employees() {
 
@@ -68,73 +90,134 @@ function Employees() {
         setSalary] =
         useState("");
 
+        const [users,
+setUsers] =
+useState([]);
+
     const [status,
         setStatus] =
         useState("Active");
 
+        const [userId,
+    setUserId] =
+    useState("");
+
+        const [loading,
+    setLoading] =
+    useState(false);
+
+    const [isModalOpen,
+    setIsModalOpen] =
+    useState(false);
+
     useEffect(() => {
 
         loadEmployees();
+         loadUsers();
 
     }, [page, search]);
+
+    const loadUsers =
+async () => {
+
+    try {
+
+        const response =
+        await getEmployeeUsers();
+
+        setUsers(
+            response.data
+        );
+
+    } catch(error){
+
+        console.error(error);
+
+    }
+
+};
 
     const loadEmployees =
     async () => {
 
-        try {
+    setLoading(true);
 
-            const response =
-                await getEmployees(
-                    page,
-                    10,
-                    search
-                );
+try {
 
-            setEmployees(
-                response.data
-            );
+    const response =
+        await getEmployees(
+            page,
+            10,
+            search
+        );
 
-            setTotalPages(
-                response.total_pages
-            );
+    setEmployees(
+        response.data
+    );
 
-        } catch (error) {
+    setTotalPages(
+        response.total_pages
+    );
 
-            console.error(error);
+} catch(error){
 
-        }
+    console.error(error);
 
-    };
+} finally {
+
+    setLoading(false);
+
+}
+    }
 
     const handleSaveEmployee =
     async () => {
 
+           if (!userId) {
+
+        toast.error(
+            "Please select a user"
+        );
+
+        return;
+    }
+
+
         try {
 
-            const employeeData = {
+    
+           const employeeData = {
 
-                first_name:
-                    firstName,
+    user_id:
+    Number(userId),
 
-                last_name:
-                    lastName,
+    first_name:
+        firstName,
 
-                email,
+    last_name:
+        lastName,
 
-                mobile,
+    email,
 
-                department,
+    mobile,
 
-                designation,
+    department,
 
-                joining_date:
-                    joiningDate,
+    designation,
 
-                salary,
+    joining_date:
+        joiningDate,
 
-                status
+    salary:
+        Number(salary),
 
-            };
+    status
+
+};
+
+await employeeSchema.validate(
+    employeeData
+);
 
             if (
                 editingId
@@ -145,9 +228,11 @@ function Employees() {
                     employeeData
                 );
 
-                alert(
-                    "Employee Updated Successfully"
-                );
+              toast.success(
+    "Employee Updated Successfully"
+);
+
+setIsModalOpen(false);
 
             } else {
 
@@ -155,13 +240,17 @@ function Employees() {
                     employeeData
                 );
 
-                alert(
-                    "Employee Created Successfully"
-                );
+               toast.success(
+    "Employee Created Successfully"
+);
+
+setIsModalOpen(false);
 
             }
 
             setEditingId(null);
+
+            
 
             setFirstName("");
             setLastName("");
@@ -172,16 +261,18 @@ function Employees() {
             setJoiningDate("");
             setSalary("");
             setStatus("Active");
-
+            setUserId("");
             loadEmployees();
 
         } catch (error) {
 
             console.error(error);
 
-            alert(
-                "Operation Failed"
-            );
+          toast.error(
+    error.response?.data?.message ||
+    error.message ||
+    "Operation Failed"
+);
 
         }
 
@@ -189,6 +280,10 @@ function Employees() {
 
     const handleEditEmployee =
     (employee) => {
+
+        setUserId(
+    employee.user_id
+);
 
         setEditingId(
             employee.id
@@ -230,6 +325,7 @@ function Employees() {
         setStatus(
             employee.status
         );
+        setIsModalOpen(true);
     };
 
     const handleDeleteEmployee =
@@ -243,156 +339,198 @@ function Employees() {
             return;
         }
 
-        await deleteEmployee(id);
-
-        loadEmployees();
+        try {
+            await deleteEmployee(id);
+            toast.success("Employee Deleted Successfully");
+            loadEmployees();
+        } catch (error) {
+            console.error(error);
+            toast.error(
+                error.response?.data?.message || "Failed to delete employee"
+            );
+        }
     };
 
     return (
 
-        <div>
+       <div className="employee-page">
 
-            <h1>
-                Employees Module
-            </h1>
+    <div className="employee-header">
 
-            <h3>
-                Add Employee
-            </h3>
+        <h1>
+            Employees Management
+        </h1>
 
-            <input
-                placeholder="First Name"
-                value={firstName}
-                onChange={(e)=>
-                    setFirstName(
-                        e.target.value
-                    )
-                }
-            />
+        <button
+            className="employee-add-btn"
+            onClick={() => {
+                setIsModalOpen(true);
+                setEditingId(null);
+            }}
+        >
+            + Add Employee
+        </button>
 
-            <br /><br />
+    </div>
 
-            <input
-                placeholder="Last Name"
-                value={lastName}
-                onChange={(e)=>
-                    setLastName(
-                        e.target.value
-                    )
-                }
-            />
+<br /><br />
 
-            <br /><br />
+<Modal
+    isOpen={isModalOpen}
+    onClose={() =>
+        setIsModalOpen(false)
+    }
+    title={
+        editingId
+            ? "Update Employee"
+            : "Add Employee"
+    }
+>
 
-            <input
-                placeholder="Email"
-                value={email}
-                onChange={(e)=>
-                    setEmail(
-                        e.target.value
-                    )
-                }
-            />
+<div className="employee-form">
 
-            <br /><br />
+    <select
+        value={userId}
+        onChange={(e) =>
+            setUserId(
+                Number(
+                    e.target.value
+                )
+            )
+        }
+    >
+        <option value="">
+            Select User
+        </option>
 
-            <input
-                placeholder="Mobile"
-                value={mobile}
-                onChange={(e)=>
-                    setMobile(
-                        e.target.value
-                    )
-                }
-            />
-
-            <br /><br />
-
-            <input
-                placeholder="Department"
-                value={department}
-                onChange={(e)=>
-                    setDepartment(
-                        e.target.value
-                    )
-                }
-            />
-
-            <br /><br />
-
-            <input
-                placeholder="Designation"
-                value={designation}
-                onChange={(e)=>
-                    setDesignation(
-                        e.target.value
-                    )
-                }
-            />
-
-            <br /><br />
-
-            <input
-                type="date"
-                value={joiningDate}
-                onChange={(e)=>
-                    setJoiningDate(
-                        e.target.value
-                    )
-                }
-            />
-
-            <br /><br />
-
-            <input
-                placeholder="Salary"
-                value={salary}
-                onChange={(e)=>
-                    setSalary(
-                        e.target.value
-                    )
-                }
-            />
-
-            <br /><br />
-
-            <select
-                value={status}
-                onChange={(e)=>
-                    setStatus(
-                        e.target.value
-                    )
-                }
-            >
-
-                <option>
-                    Active
+        {
+            users.map(user => (
+                <option
+                    key={user.id}
+                    value={user.id}
+                >
+                    {user.username}
                 </option>
+            ))
+        }
+    </select>
 
-                <option>
-                    Inactive
-                </option>
+    <input
+        placeholder="First Name"
+        value={firstName}
+        onChange={(e) =>
+            setFirstName(
+                e.target.value
+            )
+        }
+    />
 
-            </select>
+    <input
+        placeholder="Last Name"
+        value={lastName}
+        onChange={(e) =>
+            setLastName(
+                e.target.value
+            )
+        }
+    />
 
-            <br /><br />
+    <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) =>
+            setEmail(
+                e.target.value
+            )
+        }
+    />
 
-            <button
-                onClick={
-                    handleSaveEmployee
-                }
-            >
-                {
-                    editingId
-                    ? "Update Employee"
-                    : "Add Employee"
-                }
-            </button>
+    <input
+        placeholder="Mobile"
+        value={mobile}
+        onChange={(e) =>
+            setMobile(
+                e.target.value
+            )
+        }
+    />
 
-            <br /><br />
+    <input
+        placeholder="Department"
+        value={department}
+        onChange={(e) =>
+            setDepartment(
+                e.target.value
+            )
+        }
+    />
 
-            <input
-                placeholder="Search Employee..."
+    <input
+        placeholder="Designation"
+        value={designation}
+        onChange={(e) =>
+            setDesignation(
+                e.target.value
+            )
+        }
+    />
+
+    <input
+        type="date"
+        value={joiningDate}
+        onChange={(e) =>
+            setJoiningDate(
+                e.target.value
+            )
+        }
+    />
+
+    <input
+        placeholder="Salary"
+        value={salary}
+        onChange={(e) =>
+            setSalary(
+                e.target.value
+            )
+        }
+    />
+
+    <select
+        value={status}
+        onChange={(e) =>
+            setStatus(
+                e.target.value
+            )
+        }
+    >
+        <option>
+            Active
+        </option>
+
+        <option>
+            Inactive
+        </option>
+    </select>
+
+    <button
+        onClick={
+            handleSaveEmployee
+        }
+    >
+        {
+            editingId
+                ? "Update Employee"
+                : "Add Employee"
+        }
+    </button>
+
+</div>
+
+</Modal>
+
+           <input
+    className="employee-search"
+    placeholder="Search employee by name or email..."
                 value={search}
                 onChange={(e)=>{
 
@@ -406,6 +544,12 @@ function Employees() {
             />
 
             <br /><br />
+
+            {
+    loading
+    ? <Loader />
+    : (
+       
 
             <DataTable
                 columns={[
@@ -424,46 +568,42 @@ function Employees() {
                     handleDeleteEmployee
                 }
             />
-
+            )
+        }
             <br />
 
-            <button
-                disabled={
-                    page === 1
-                }
-                onClick={() =>
-                    setPage(
-                        page - 1
-                    )
-                }
-            >
-                Previous
-            </button>
+         <div className="employee-pagination">
 
-            <span>
-                {" "}
-                Page {page}
-                of {totalPages}
-                {" "}
-            </span>
+    <button
+        disabled={page === 1}
+        onClick={() =>
+            setPage(page - 1)
+        }
+    >
+        Previous
+    </button>
 
-            <button
-                disabled={
-                    page === totalPages
-                }
-                onClick={() =>
-                    setPage(
-                        page + 1
-                    )
-                }
-            >
-                Next
-            </button>
+    <span>
+        Page {page} of {totalPages}
+    </span>
+
+    <button
+        disabled={
+            page === totalPages
+        }
+        onClick={() =>
+            setPage(page + 1)
+        }
+    >
+        Next
+    </button>
+
+</div>
 
         </div>
 
     );
 
-}
+    }
 
 export default Employees;

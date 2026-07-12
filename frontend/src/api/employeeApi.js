@@ -57,3 +57,14 @@ async (
 
     return response.data;
 };
+
+export const getEmployeeUsers =
+async () => {
+
+    const response =
+    await axiosInstance.get(
+        "/users/employees"
+    );
+
+    return response.data;
+};

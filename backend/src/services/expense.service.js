@@ -2,6 +2,10 @@ const expenseRepository =
 require(
     "../repositories/expense.repository"
 );
+const employeeRepository =
+require(
+    "../repositories/employee.repository"
+);
 
 const logger =
 require(
@@ -14,12 +18,22 @@ const VALID_STATUSES = [
     "Rejected"
 ];
 
-
-
 const createExpense =
 async (
-    expenseData
+    expenseData,
+    user
 ) => {
+
+    if (user.role === "employee") {
+        const employee = await employeeRepository.getEmployeeByUserId(user.id);
+        if (!employee) {
+            const error = new Error("Employee profile not found");
+            error.statusCode = 404;
+            throw error;
+        }
+        expenseData.employee_id = employee.id;
+        expenseData.status = "Pending";
+    }
 
     if (
         !VALID_STATUSES.includes(
@@ -51,16 +65,25 @@ logger(
 
 return result;
 };
+
 const getExpenses =
-async () => {
+async (user) => {
+
+    let employeeId = null;
+    if (user.role === "employee") {
+        const employee = await employeeRepository.getEmployeeByUserId(user.id);
+        if (!employee) return [];
+        employeeId = employee.id;
+    }
 
     return await
         expenseRepository
-        .getExpenses();
+        .getExpenses(employeeId);
 
 };
+
 const getExpenseById =
-async (id) => {
+async (id, user) => {
 
     const expense =
         await expenseRepository
@@ -79,13 +102,23 @@ async (id) => {
         throw error;
     }
 
+    if (user.role === "employee") {
+        const employee = await employeeRepository.getEmployeeByUserId(user.id);
+        if (!employee || expense.employee_id !== employee.id) {
+            const error = new Error("Access Denied");
+            error.statusCode = 403;
+            throw error;
+        }
+    }
+
     return expense;
 };
 
 const updateExpense =
 async (
     id,
-    expenseData
+    expenseData,
+    user
 ) => {
 
     const expense =
@@ -105,11 +138,29 @@ async (
         throw error;
     }
 
-    const VALID_STATUSES = [
-        "Pending",
-        "Approved",
-        "Rejected"
-    ];
+    if (user.role === "employee") {
+        const employee = await employeeRepository.getEmployeeByUserId(user.id);
+        if (!employee || expense.employee_id !== employee.id) {
+            const error = new Error("Access Denied");
+            error.statusCode = 403;
+            throw error;
+        }
+        if (expense.status !== "Pending") {
+            const error = new Error("Cannot modify a processed claim");
+            error.statusCode = 400;
+            throw error;
+        }
+        expenseData.employee_id = employee.id;
+        expenseData.status = "Pending"; // Employee cannot change status
+    } else {
+        // Admin or HR updating status or details
+        if (!expenseData.employee_id) {
+            expenseData.employee_id = expense.employee_id;
+        }
+        if (!expenseData.status) {
+            expenseData.status = expense.status;
+        }
+    }
 
     if (
         !VALID_STATUSES.includes(
@@ -140,7 +191,7 @@ logger(
 };
 
 const deleteExpense =
-async (id) => {
+async (id, user) => {
 
     const expense =
         await expenseRepository
@@ -158,6 +209,21 @@ async (id) => {
 
         throw error;
     }
+
+    if (user.role === "employee") {
+        const employee = await employeeRepository.getEmployeeByUserId(user.id);
+        if (!employee || expense.employee_id !== employee.id) {
+            const error = new Error("Access Denied");
+            error.statusCode = 403;
+            throw error;
+        }
+        if (expense.status !== "Pending") {
+            const error = new Error("Cannot delete a processed claim");
+            error.statusCode = 400;
+            throw error;
+        }
+    }
+
 logger(
     "DELETE_EXPENSE",
     `Expense ID ${id} deleted`
@@ -171,21 +237,33 @@ const getPaginatedExpensesData =
 async (
     page,
     limit,
-    search
+    search,
+    user
 ) => {
+
+    let employeeId = null;
+    if (user.role === "employee") {
+        const employee = await employeeRepository.getEmployeeByUserId(user.id);
+        if (!employee) {
+            return { expenses: [], totalRecords: 0 };
+        }
+        employeeId = employee.id;
+    }
 
     const expenses =
         await expenseRepository
         .getPaginatedExpenses(
             page,
             limit,
-            search
+            search,
+            employeeId
         );
 
     const totalRecords =
         await expenseRepository
         .getTotalExpensesCount(
-            search
+            search,
+            employeeId
         );
 
     return {
@@ -201,4 +279,4 @@ module.exports = {
     updateExpense,
     deleteExpense,
     getPaginatedExpensesData
-};
+};

@@ -46,7 +46,8 @@ router.delete(
     "/jobs/:id",
     verifyToken,
     authorizeRoles(
-        "admin"
+        "admin",
+        "hr"
     ),
     jobController.deleteJob
 );

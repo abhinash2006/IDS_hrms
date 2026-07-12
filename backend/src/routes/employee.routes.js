@@ -42,6 +42,18 @@ router.get(
 );
 
 router.get(
+    "/employees/profile",
+    verifyToken,
+    authorizeRoles(
+        "admin",
+        "hr",
+        "employee"
+    ),
+    employeeController
+    .getEmployeeProfile
+);
+
+router.get(
     "/employees/paginated",
     verifyToken,
     authorizeRoles(
@@ -84,6 +96,8 @@ router.delete(
     employeeController
         .deleteEmployee
 );
+
+
 
 module.exports =
 router;

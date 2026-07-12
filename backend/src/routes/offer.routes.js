@@ -9,10 +9,19 @@ require(
     "../controllers/offer.controller"
 );
 
+router.post(
+    "/offers",
+    offerController.createOffer
+);
+
+router.get(
+    "/offers",
+    offerController.getOffers
+);
+
 router.get(
     "/offers/:id/pdf",
-    offerController
-    .generateOfferLetter
+    offerController.generateOfferLetter
 );
 
 module.exports =

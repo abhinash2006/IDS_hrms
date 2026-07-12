@@ -1,6 +1,9 @@
 const db =
 require("../config/db");
 
+const logger =
+require("../utils/logger");
+
 const createInterview =
 async (
     interviewData

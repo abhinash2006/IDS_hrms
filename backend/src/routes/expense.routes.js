@@ -24,7 +24,8 @@ router.post(
     verifyToken,
     authorizeRoles(
         "admin",
-        "hr"
+        "hr",
+        "employee"
     ),
     expenseController
         .createExpense
@@ -35,7 +36,8 @@ router.get(
     verifyToken,
     authorizeRoles(
         "admin",
-        "hr"
+        "hr",
+        "employee"
     ),
     expenseController
         .getExpenses
@@ -46,7 +48,8 @@ router.get(
     verifyToken,
     authorizeRoles(
         "admin",
-        "hr"
+        "hr",
+        "employee"
     ),
     expenseController
         .getPaginatedExpenses
@@ -57,7 +60,8 @@ router.get(
     verifyToken,
     authorizeRoles(
         "admin",
-        "hr"
+        "hr",
+        "employee"
     ),
     expenseController
         .getExpenseById
@@ -68,7 +72,8 @@ router.put(
     verifyToken,
     authorizeRoles(
         "admin",
-        "hr"
+        "hr",
+        "employee"
     ),
     expenseController
         .updateExpense
@@ -79,11 +84,12 @@ router.delete(
     verifyToken,
     authorizeRoles(
         "admin",
-        "hr"
+        "hr",
+        "employee"
     ),
     expenseController
         .deleteExpense
 );
 
 module.exports =
-router;
+router;

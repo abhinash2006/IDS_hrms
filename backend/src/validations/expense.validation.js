@@ -6,7 +6,7 @@ Joi.object({
 
     employee_id:
     Joi.number()
-    .required(),
+    .optional(),
 
     claim_title:
     Joi.string()
@@ -23,7 +23,8 @@ Joi.object({
     .allow(
         null,
         ""
-    ),
+    )
+    .optional(),
 
     status:
     Joi.string()
@@ -32,10 +33,10 @@ Joi.object({
         "Approved",
         "Rejected"
     )
-    .required()
+    .optional()
 
 });
 
 module.exports = {
     createExpenseSchema
-};
+};

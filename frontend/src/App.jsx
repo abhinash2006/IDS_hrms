@@ -2,12 +2,13 @@ import {
     BrowserRouter,
     Routes,
     Route,
-    Navigate
+    useLocation
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-
+import Attendance
+from "./pages/Attendance";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Jobs from "./pages/Jobs";
@@ -16,42 +17,65 @@ import Expenses from "./pages/Expenses";
 import Interviews from "./pages/Interviews";
 import OfferLetters from "./pages/OfferLetters";
 import Employees from "./pages/Employees";
-
+import Leaves
+from "./pages/Leaves";
+import Users
+from "./pages/Users";
+import Payroll
+from "./pages/Payroll";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
+import Profile
+from "./pages/Profile";
+
+function Layout() {
+    const location =
+        useLocation();
+
+    const hideLayout =
+        location.pathname === "/" ||
+        location.pathname === "/login";
+
+    if (hideLayout) {
+        return (
+            <Routes>
+                <Route
+                    path="/"
+                    element={<Login />}
+                />
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
+            </Routes>
+        );
+    }
 
     return (
-
-        <BrowserRouter>
-
+        <>
             <Navbar />
 
-            <div
-                style={{
-                    display: "flex"
-                }}
-            >
+            <div className="app-container">
 
                 <Sidebar />
 
-                <div
-                    style={{
-                        padding: "20px",
-                        width: "100%"
-                    }}
-                >
+                <div className="main-content">
 
                     <Routes>
 
                         <Route
-                            path="/"
-                            element={<Login />}
-                        />
-
-                        <Route
-                            path="/login"
-                            element={<Login />}
+                            path="/profile"
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "hr",
+                                        "employee"
+                                    ]}
+                                >
+                                    <Profile />
+                                </ProtectedRoute>
+                            }
                         />
 
                         <Route
@@ -64,10 +88,15 @@ function App() {
                         />
 
                         <Route
-                            path="/jobs"
+                            path="/employees"
                             element={
-                                <ProtectedRoute>
-                                    <Jobs />
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "hr"
+                                    ]}
+                                >
+                                    <Employees />
                                 </ProtectedRoute>
                             }
                         />
@@ -75,17 +104,82 @@ function App() {
                         <Route
                             path="/candidates"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "hr"
+                                    ]}
+                                >
                                     <Candidates />
                                 </ProtectedRoute>
                             }
                         />
 
                         <Route
-                            path="/expenses"
+                            path="/users"
                             element={
-                                <ProtectedRoute>
-                                    <Expenses />
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin"
+                                    ]}
+                                >
+                                    <Users />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/jobs"
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "hr"
+                                    ]}
+                                >
+                                    <Jobs />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/attendance"
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "employee"
+                                    ]}
+                                >
+                                    <Attendance />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/leaves"
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "employee"
+                                    ]}
+                                >
+                                    <Leaves />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/payroll"
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "employee"
+                                    ]}
+                                >
+                                    <Payroll />
                                 </ProtectedRoute>
                             }
                         />
@@ -93,8 +187,28 @@ function App() {
                         <Route
                             path="/interviews"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "hr"
+                                    ]}
+                                >
                                     <Interviews />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/expenses"
+                            element={
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "hr",
+                                        "employee"
+                                    ]}
+                                >
+                                    <Expenses />
                                 </ProtectedRoute>
                             }
                         />
@@ -102,27 +216,14 @@ function App() {
                         <Route
                             path="/offers"
                             element={
-                                <ProtectedRoute>
+                                <ProtectedRoute
+                                    allowedRoles={[
+                                        "admin",
+                                        "hr"
+                                    ]}
+                                >
                                     <OfferLetters />
                                 </ProtectedRoute>
-                            }
-                        />
-
-                        <Route
-                            path="/employees"
-                            element={
-                                <ProtectedRoute>
-                                    <Employees />
-                                </ProtectedRoute>
-                            }
-                        />
-
-                        <Route
-                            path="*"
-                            element={
-                                <Navigate
-                                    to="/login"
-                                />
                             }
                         />
 
@@ -131,11 +232,17 @@ function App() {
                 </div>
 
             </div>
-
-        </BrowserRouter>
-
+        </>
     );
-
 }
+
+function App() {
+    return (
+        <BrowserRouter>
+            <Layout />
+        </BrowserRouter>
+    );
+}
+
 
 export default App;

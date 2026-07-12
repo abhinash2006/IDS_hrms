@@ -9,6 +9,10 @@ import {
     useNavigate
 } from "react-router-dom";
 
+import "../styles/Login.css";
+import { FaUser, FaLock } from "react-icons/fa";
+import { toast } from "react-toastify";
+
 function Login() {
 
     const navigate =
@@ -23,7 +27,13 @@ function Login() {
         useState("");
 
     const handleLogin =
-    async () => {
+    async (e) => {
+        if (e) e.preventDefault();
+
+        if (!username || !password) {
+            toast.error("Please fill in all fields");
+            return;
+        }
 
         try {
 
@@ -41,13 +51,26 @@ function Login() {
                 response.data.token
             );
 
-            alert(
-                "Login Successful"
+            const token =
+                response.data.token;
+
+            const payload =
+                JSON.parse(
+                    atob(
+                        token.split(".")[1]
+                    )
+                );
+
+            localStorage.setItem(
+                "role",
+                payload.role
             );
 
-            navigate(
-                "/dashboard"
-            );
+            toast.success("Login Successful!");
+
+            setTimeout(() => {
+                window.location.href = "/dashboard";
+            }, 1000);
 
         } catch (error) {
 
@@ -55,8 +78,8 @@ function Login() {
                 error
             );
 
-            alert(
-                "Invalid Credentials"
+            toast.error(
+                error.response?.data?.message || "Invalid Credentials"
             );
 
         }
@@ -64,54 +87,56 @@ function Login() {
     };
 
     return (
+        <div className="login-container">
+            <div className="login-glow"></div>
+            <div className="login-glow-secondary"></div>
 
-        <div
-            style={{
-                textAlign:"center",
-                marginTop:"100px"
-            }}
-        >
+            <div className="login-card">
+                <h1 className="login-logo">
+                    HRMS
+                </h1>
+                <p className="login-subtitle">
+                    Recruitment & Self Service Portal
+                </p>
 
-            <h1>
-                HRMS Login
-            </h1>
+                <form onSubmit={handleLogin}>
+                    <div className="input-icon-group">
+                        <input
+                            type="text"
+                            placeholder="Username"
+                            value={username}
+                            onChange={(e) =>
+                                setUsername(
+                                    e.target.value
+                                )
+                            }
+                        />
+                        <FaUser />
+                    </div>
 
-            <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e)=>
-                    setUsername(
-                        e.target.value
-                    )
-                }
-            />
+                    <div className="input-icon-group">
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) =>
+                                setPassword(
+                                    e.target.value
+                                )
+                            }
+                        />
+                        <FaLock />
+                    </div>
 
-            <br /><br />
-
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e)=>
-                    setPassword(
-                        e.target.value
-                    )
-                }
-            />
-
-            <br /><br />
-
-            <button
-                onClick={
-                    handleLogin
-                }
-            >
-                Login
-            </button>
-
+                    <button
+                        type="submit"
+                        className="login-btn"
+                    >
+                        Sign In
+                    </button>
+                </form>
+            </div>
         </div>
-
     );
 
 }

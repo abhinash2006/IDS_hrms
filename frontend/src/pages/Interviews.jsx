@@ -3,11 +3,12 @@ import {
     useState
 } from "react";
 
-import Navbar
-from "../components/Navbar";
+
 
 import DataTable
 from "../components/DataTable";
+
+import "../styles/Interviews.css";
 
 import {
     getInterviews,
@@ -15,6 +16,10 @@ import {
     updateInterview,
     deleteInterview
 } from "../api/interviewApi";
+
+import {
+    toast
+} from "react-toastify";
 
 function Interviews() {
 
@@ -131,7 +136,7 @@ function Interviews() {
                     interviewData
                 );
 
-                alert(
+                toast.success(
                     "Interview Updated Successfully"
                 );
 
@@ -141,7 +146,7 @@ function Interviews() {
                     interviewData
                 );
 
-                alert(
+               toast.success(
                     "Interview Created Successfully"
                 );
 
@@ -162,8 +167,8 @@ function Interviews() {
 
             console.error(error);
 
-            alert(
-                "Operation Failed"
+            toast.error(
+                error.response?.data?.message || "Operation Failed"
             );
 
         }
@@ -226,7 +231,7 @@ function Interviews() {
 
             await deleteInterview(id);
 
-            alert(
+            toast.success(
                 "Interview deleted successfully"
             );
 
@@ -235,204 +240,206 @@ function Interviews() {
         } catch (error) {
 
             console.error(error);
+            toast.error(
+                error.response?.data?.message || "Failed to delete interview"
+            );
 
         }
 
     };
 
     return (
-        <>
-            <Navbar />
+  <div className="interviews-page">
 
-            <div>
+    <div className="interview-header">
+      <h1>Interview Scheduling</h1>
 
-                <h1>
-                    Interview Scheduling
-                </h1>
+      <p>
+        Schedule and manage candidate interviews.
+      </p>
+    </div>
 
-                <input
-                    type="number"
-                    placeholder="Candidate ID"
-                    value={candidateId}
-                    onChange={(e)=>
-                        setCandidateId(
-                            e.target.value
-                        )
-                    }
-                />
+    <div className="interview-form-card">
 
-                <br /><br />
+      <div className="interview-form-grid">
 
-                <input
-                    type="date"
-                    value={interviewDate}
-                    onChange={(e)=>
-                        setInterviewDate(
-                            e.target.value
-                        )
-                    }
-                />
+        <input
+          type="number"
+          placeholder="Candidate ID"
+          value={candidateId}
+          onChange={(e) =>
+            setCandidateId(
+              e.target.value
+            )
+          }
+        />
 
-                <br /><br />
+        <input
+          type="date"
+          value={interviewDate}
+          onChange={(e) =>
+            setInterviewDate(
+              e.target.value
+            )
+          }
+        />
 
-                <input
-                    type="time"
-                    value={interviewTime}
-                    onChange={(e)=>
-                        setInterviewTime(
-                            e.target.value
-                        )
-                    }
-                />
+        <input
+          type="time"
+          value={interviewTime}
+          onChange={(e) =>
+            setInterviewTime(
+              e.target.value
+            )
+          }
+        />
 
-                <br /><br />
+        <input
+          type="text"
+          placeholder="Interviewer Name"
+          value={interviewerName}
+          onChange={(e) =>
+            setInterviewerName(
+              e.target.value
+            )
+          }
+        />
 
-                <input
-                    type="text"
-                    placeholder="Interviewer Name"
-                    value={interviewerName}
-                    onChange={(e)=>
-                        setInterviewerName(
-                            e.target.value
-                        )
-                    }
-                />
+        <select
+          value={interviewMode}
+          onChange={(e) =>
+            setInterviewMode(
+              e.target.value
+            )
+          }
+        >
+          <option>
+            Online
+          </option>
 
-                <br /><br />
+          <option>
+            Offline
+          </option>
+        </select>
 
-                <select
-                    value={interviewMode}
-                    onChange={(e)=>
-                        setInterviewMode(
-                            e.target.value
-                        )
-                    }
-                >
-                    <option>
-                        Online
-                    </option>
+        <select
+          value={status}
+          onChange={(e) =>
+            setStatus(
+              e.target.value
+            )
+          }
+        >
+          <option>
+            Scheduled
+          </option>
 
-                    <option>
-                        Offline
-                    </option>
+          <option>
+            Completed
+          </option>
 
-                </select>
+          <option>
+            Cancelled
+          </option>
+        </select>
 
-                <br /><br />
+      </div>
 
-                <select
-                    value={status}
-                    onChange={(e)=>
-                        setStatus(
-                            e.target.value
-                        )
-                    }
-                >
-                    <option>
-                        Scheduled
-                    </option>
+      <div className="interview-actions">
 
-                    <option>
-                        Completed
-                    </option>
+        <button
+          className="btn btn-primary"
+          onClick={
+            handleSaveInterview
+          }
+        >
+          {
+            editingId
+              ? "Update Interview"
+              : "Schedule Interview"
+          }
+        </button>
 
-                    <option>
-                        Cancelled
-                    </option>
+      </div>
 
-                </select>
+    </div>
 
-                <br /><br />
+    <div className="interview-search-card">
 
-                <button
-                    onClick={
-                        handleSaveInterview
-                    }
-                >
-                    {
-                        editingId
-                        ? "Update Interview"
-                        : "Schedule Interview"
-                    }
-                </button>
+      <input
+        type="text"
+        placeholder="Search interviews..."
+        value={search}
+        onChange={(e) => {
 
-                <br /><br />
+          setSearch(
+            e.target.value
+          );
 
-                <input
-                    type="text"
-                    placeholder="Search"
-                    value={search}
-                    onChange={(e)=>{
+          setPage(1);
 
-                        setSearch(
-                            e.target.value
-                        );
+        }}
+      />
 
-                        setPage(1);
+    </div>
 
-                    }}
-                />
+    <DataTable
+      columns={[
+        "id",
+        "candidate_id",
+        "interviewer_name",
+        "interview_mode",
+        "status"
+      ]}
+      data={interviews}
+      onEdit={
+        handleEditInterview
+      }
+      onDelete={
+        handleDeleteInterview
+      }
+    />
 
-                <br /><br />
+    <div className="interview-pagination">
 
-                <DataTable
-                    columns={[
-                        "id",
-                        "candidate_id",
-                        "interviewer_name",
-                        "interview_mode",
-                        "status"
-                    ]}
-                    data={interviews}
-                    onEdit={
-                        handleEditInterview
-                    }
-                    onDelete={
-                        handleDeleteInterview
-                    }
-                />
+      <button
+        disabled={
+          page === 1
+        }
+        onClick={() =>
+          setPage(
+            page - 1
+          )
+        }
+      >
+        Previous
+      </button>
 
-                <br />
+      <span>
+        Page {page}
+        {" "}
+        of
+        {" "}
+        {totalPages}
+      </span>
 
-                <button
-                    disabled={
-                        page === 1
-                    }
-                    onClick={() =>
-                        setPage(
-                            page - 1
-                        )
-                    }
-                >
-                    Previous
-                </button>
+      <button
+        disabled={
+          page === totalPages
+        }
+        onClick={() =>
+          setPage(
+            page + 1
+          )
+        }
+      >
+        Next
+      </button>
 
-                <span>
-                    {" "}
-                    Page {page}
-                    {" "}
-                    of
-                    {" "}
-                    {totalPages}
-                    {" "}
-                </span>
+    </div>
 
-                <button
-                    disabled={
-                        page === totalPages
-                    }
-                    onClick={() =>
-                        setPage(
-                            page + 1
-                        )
-                    }
-                >
-                    Next
-                </button>
-
-            </div>
-        </>
-    );
+  </div>
+);
 
 }
 

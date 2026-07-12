@@ -21,6 +21,11 @@ async (
     res
 ) => {
 
+    if (req.user.role === "employee") {
+        delete req.body.employee_id;
+        req.body.status = "Pending";
+    }
+
     const {
         error
     } =
@@ -47,7 +52,8 @@ async (
     const result =
         await expenseService
         .createExpense(
-            req.body
+            req.body,
+            req.user
         );
 
     res.status(201)
@@ -74,7 +80,7 @@ async (
 
     const expenses =
         await expenseService
-        .getExpenses();
+        .getExpenses(req.user);
 
     res.status(200)
     .json({
@@ -94,7 +100,8 @@ async (
     const expense =
         await expenseService
         .getExpenseById(
-            req.params.id
+            req.params.id,
+            req.user
         );
 
     res.status(200)
@@ -111,6 +118,12 @@ async (
     req,
     res
 ) => {
+
+    if (req.user.role === "employee") {
+        delete req.body.employee_id;
+        // Employees cannot approve/reject their own expenses
+        delete req.body.status; 
+    }
 
     const {
         error
@@ -138,7 +151,8 @@ async (
     await expenseService
         .updateExpense(
             req.params.id,
-            req.body
+            req.body,
+            req.user
         );
 
     res.status(200)
@@ -159,7 +173,8 @@ async (
 
     await expenseService
         .deleteExpense(
-            req.params.id
+            req.params.id,
+            req.user
         );
 
     res.status(200)
@@ -196,7 +211,8 @@ async (
         .getPaginatedExpensesData(
             page,
             limit,
-            search
+            search,
+            req.user
         );
 
     const totalPages =
@@ -234,4 +250,4 @@ module.exports = {
     updateExpense,
     deleteExpense,
     getPaginatedExpenses
-};
+};

@@ -1,71 +1,52 @@
 import {
-    Link,
-    useNavigate
-} from "react-router-dom";
-
-
+  FaBell,
+  FaSearch
+} from "react-icons/fa";
 
 function Navbar() {
+  const role =
+    localStorage.getItem("role");
 
-    const navigate =
-        useNavigate();
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href =
+      "/login";
+  };
 
-    const handleLogout =
-    () => {
+  return (
+    <div className="navbar">
 
-        localStorage.removeItem(
-            "token"
-        );
+      <div className="search-box">
+        <FaSearch />
 
-         window.location.href =
-        "/login";
+        <input
+          placeholder="Search..."
+        />
+      </div>
 
+      <div className="nav-right">
 
+        <FaBell
+          className="icon"
+        />
 
-        navigate("/");
-
-    };
-
-    return (
-
-        <div
-            style={{
-                display: "flex",
-                gap: "20px",
-                padding: "15px",
-                background: "#f0f0f0",
-                marginBottom: "20px"
-            }}
-        >
-
-            <Link to="/jobs">
-                Jobs
-            </Link>
-
-            <Link to="/candidates">
-                Candidates
-            </Link>
-
-            <Link to="/expenses">
-                Expenses
-            </Link>
-
-            <Link to="/interviews">
-    Interviews
-</Link>
-
-            <button
-                onClick={
-                    handleLogout
-                }
-            >
-                Logout
-            </button>
-
+        <div className="profile">
+          {role}
         </div>
 
-    );
+        <button
+          className="logout-btn"
+          onClick={
+            handleLogout
+          }
+        >
+          Logout
+        </button>
 
+      </div>
+
+    </div>
+  );
 }
 
 export default Navbar;

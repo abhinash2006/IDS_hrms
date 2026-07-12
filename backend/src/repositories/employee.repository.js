@@ -7,6 +7,7 @@ async (
 ) => {
 
     const {
+         user_id,
         first_name,
         last_name,
         email,
@@ -21,22 +22,24 @@ async (
     const [result] =
         await db.query(
             `
-            INSERT INTO employees
-            (
-                first_name,
-                last_name,
-                email,
-                mobile,
-                department,
-                designation,
-                joining_date,
-                salary,
-                status
-            )
-            VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           INSERT INTO employees
+(
+    user_id,
+    first_name,
+    last_name,
+    email,
+    mobile,
+    department,
+    designation,
+    joining_date,
+    salary,
+    status
+)
+VALUES
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `,
             [
+                user_id,
                 first_name,
                 last_name,
                 email,
@@ -232,6 +235,23 @@ async (search) => {
     return rows[0].total;
 };
 
+const getEmployeeByUserId =
+async (userId) => {
+
+    const [rows] =
+    await db.query(
+        `
+        SELECT *
+        FROM employees
+        WHERE user_id = ?
+        `,
+        [userId]
+    );
+
+    return rows[0];
+
+};
+
 module.exports = {
     createEmployee,
     getEmployees,
@@ -239,5 +259,6 @@ module.exports = {
     updateEmployee,
     deleteEmployee,
     getPaginatedEmployees,
-    getTotalEmployeesCount
+    getTotalEmployeesCount,
+    getEmployeeByUserId
 };

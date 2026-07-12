@@ -231,11 +231,32 @@ async (
 
 });
 
+const getEmployeeProfile =
+asyncHandler(
+async (
+    req,
+    res
+) => {
+
+    const employee =
+    await employeeService
+    .getEmployeeProfile(
+        req.user.id
+    );
+
+    res.status(200).json({
+        success:true,
+        data:employee
+    });
+
+});
+
 module.exports = {
     createEmployee,
     getEmployees,
     getEmployeeById,
     updateEmployee,
     deleteEmployee,
-    getPaginatedEmployees
+    getPaginatedEmployees,
+    getEmployeeProfile
 };

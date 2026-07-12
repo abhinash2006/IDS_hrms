@@ -67,7 +67,8 @@ async (
         username,
         email,
         password,
-        role
+        role,
+        status
     } = userData;
 
     const existingUsername =
@@ -115,7 +116,8 @@ async (
             email,
             password:
                 hashedPassword,
-            role
+            role,
+            status
         });
 
     return result;

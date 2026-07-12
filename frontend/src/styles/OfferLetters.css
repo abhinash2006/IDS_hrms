@@ -1,0 +1,73 @@
+.offer-page {
+  width: 100%;
+}
+
+.offer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.offer-title h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.offer-title p {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.offer-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.offer-btn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.offer-btn:hover {
+  background: #4f46e5;
+}
+
+.offer-status {
+  display: inline-flex;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.offer-status.draft {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.offer-status.sent {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.offer-status.accepted {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.offer-status.rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}

@@ -1,85 +1,131 @@
 import { Link } from "react-router-dom";
 
+import {
+  FaHome,
+  FaBriefcase,
+  FaUsers,
+  FaUserTie,
+  FaCalendarCheck,
+  FaMoneyBill,
+  FaClipboardList,
+  FaFileAlt,
+  FaUserCircle
+} from "react-icons/fa";
+
 function Sidebar() {
-    return (
-        <div
-            style={{
-                width: "220px",
-                backgroundColor: "#334155",
-                color: "white",
-                minHeight: "100vh",
-                padding: "20px"
-            }}
-        >
-            <h3>Menu</h3>
+  const role =
+    localStorage.getItem("role");
 
-            <ul
-                style={{
-                    listStyle: "none",
-                    padding: 0
-                }}
-            >
-                <li>
-                    <Link
-                        to="/"
-                        style={{
-                            color: "white",
-                            textDecoration: "none"
-                        }}
-                    >
-                        Dashboard
-                    </Link>
-                </li>
+  return (
+    <div className="sidebar">
 
-                <br />
+      <div className="logo">
+        HRMS
+      </div>
 
-                <li>
-                    <Link
-                        to="/jobs"
-                        style={{
-                            color: "white",
-                            textDecoration: "none"
-                        }}
-                    >
-                        Jobs
-                    </Link>
-                </li>
+      <ul className="menu">
 
-                <br />
+        <li>
+          <Link to="/dashboard">
+            <FaHome />
+            Dashboard
+          </Link>
+        </li>
 
-                <li>
-                    <Link
-                        to="/candidates"
-                        style={{
-                            color: "white",
-                            textDecoration: "none"
-                        }}
-                    >
-                        Candidates
-                    </Link>
-                </li>
+        {(role === "admin" ||
+          role === "hr") && (
+          <>
+            <li>
+              <Link to="/jobs">
+                <FaBriefcase />
+                Jobs
+              </Link>
+            </li>
 
-                <br />
+            <li>
+              <Link to="/candidates">
+                <FaUsers />
+                Candidates
+              </Link>
+            </li>
 
-                <li>
-                    <Link
-                        to="/expenses"
-                        style={{
-                            color: "white",
-                            textDecoration: "none"
-                        }}
-                    >
-                        Expenses
-                    </Link>
-                </li>
-                <li>
-    <Link to="/employees">
-        Employees
-    </Link>
-</li>
-            </ul>
-        </div>
-    );
+            <li>
+              <Link to="/interviews">
+                <FaClipboardList />
+                Interviews
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/offers">
+                <FaFileAlt />
+                Offers
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/employees">
+                <FaUserTie />
+                Employees
+              </Link>
+            </li>
+          </>
+        )}
+
+        {role === "admin" && (
+          <li>
+            <Link to="/users">
+              <FaUsers />
+              Users
+            </Link>
+          </li>
+        )}
+
+        {(role === "admin" ||
+          role === "hr" ||
+          role === "employee") && (
+          <>
+            <li>
+              <Link to="/attendance">
+                <FaCalendarCheck />
+                Attendance
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/profile">
+                <FaUserCircle />
+                Profile
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/leaves">
+                <FaClipboardList />
+                Leaves
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/expenses">
+                <FaMoneyBill />
+                Expenses
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/payroll">
+                <FaMoneyBill />
+                Payroll
+              </Link>
+            </li>
+          </>
+        )}
+
+      </ul>
+
+    </div>
+  );
 }
 
 export default Sidebar;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../services/axiosInstance";
-
+import "../styles/OfferLetters.css";
 function OfferLetters() {
 
     const [offers, setOffers] = useState([]);
@@ -39,97 +39,144 @@ function OfferLetters() {
 
     };
 
-    return (
+   return (
+  <div className="offer-page">
 
-        <div>
+    <div className="offer-header">
 
-            <h1>
-                Offer Letters
-            </h1>
+      <h1>
+        Offer Letters
+      </h1>
 
-            <table
-                border="1"
-                cellPadding="10"
-                width="100%"
-            >
+      <p>
+        Generate and download offer letters for selected candidates.
+      </p>
 
-                <thead>
+    </div>
 
-                    <tr>
+    <div className="offer-table-card">
 
-                        <th>ID</th>
+      <div className="table-container">
 
-                        <th>Candidate ID</th>
+        <table className="custom-table">
 
-                        <th>Offer Title</th>
+          <thead>
 
-                        <th>Joining Date</th>
+            <tr>
 
-                        <th>Salary</th>
+              <th>ID</th>
 
-                        <th>Status</th>
+              <th>Candidate ID</th>
 
-                        <th>Action</th>
+              <th>Offer Title</th>
 
-                    </tr>
+              <th>Joining Date</th>
 
-                </thead>
+              <th>Salary</th>
 
-                <tbody>
+              <th>Status</th>
 
-                    {offers.map((offer) => (
+              <th>Action</th>
 
-                        <tr key={offer.id}>
+            </tr>
 
-                            <td>
-                                {offer.id}
-                            </td>
+          </thead>
 
-                            <td>
-                                {offer.candidate_id}
-                            </td>
+          <tbody>
 
-                            <td>
-                                {offer.offer_title}
-                            </td>
+            {
+              offers.length === 0
+              ? (
+                <tr>
+                  <td
+                    colSpan="7"
+                    style={{
+                      textAlign: "center",
+                      padding: "2rem"
+                    }}
+                  >
+                    No offer letters found
+                  </td>
+                </tr>
+              )
+              : (
+                offers.map((offer) => (
 
-                            <td>
-                                {offer.joining_date}
-                            </td>
+                  <tr key={offer.id}>
 
-                            <td>
-                                ₹{offer.salary}
-                            </td>
+                    <td>
+                      {offer.id}
+                    </td>
 
-                            <td>
-                                {offer.offer_status}
-                            </td>
+                    <td>
+                      {offer.candidate_id}
+                    </td>
 
-                            <td>
+                    <td>
+                      {offer.offer_title}
+                    </td>
 
-                                <button
-                                    onClick={() =>
-                                        downloadPdf(
-                                            offer.id
-                                        )
-                                    }
-                                >
-                                    Download PDF
-                                </button>
+                    <td>
+                      {
+                        offer.joining_date
+                          ?.split("T")[0]
+                      }
+                    </td>
 
-                            </td>
+                    <td>
+                      ₹
+                      {
+                        Number(
+                          offer.salary
+                        ).toLocaleString(
+                          "en-IN"
+                        )
+                      }
+                    </td>
 
-                        </tr>
+                    <td>
 
-                    ))}
+                      <span
+                        className="offer-status"
+                      >
+                        {
+                          offer.offer_status
+                        }
+                      </span>
 
-                </tbody>
+                    </td>
 
-            </table>
+                    <td>
 
-        </div>
+                      <button
+                        className="offer-download-btn"
+                        onClick={() =>
+                          downloadPdf(
+                            offer.id
+                          )
+                        }
+                      >
+                        Download PDF
+                      </button>
 
-    );
+                    </td>
+
+                  </tr>
+
+                ))
+              )
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+);
 
 }
 

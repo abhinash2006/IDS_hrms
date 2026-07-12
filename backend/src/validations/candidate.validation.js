@@ -16,7 +16,7 @@ Joi.object({
 
     email:
         Joi.string()
-        .email()
+        .email({ tlds: { allow: false } })
         .required(),
 
     mobile:

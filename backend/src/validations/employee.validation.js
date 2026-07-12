@@ -3,6 +3,10 @@ const Joi = require("joi");
 const createEmployeeSchema =
 Joi.object({
 
+    user_id:
+        Joi.number()
+        .required(),
+
     first_name:
         Joi.string()
         .required(),
@@ -13,7 +17,7 @@ Joi.object({
 
     email:
         Joi.string()
-        .email()
+        .email({ tlds: { allow: false } })
         .required(),
 
     mobile:

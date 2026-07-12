@@ -5,7 +5,7 @@ const axiosInstance =
 axios.create({
 
     baseURL:
-        "http://localhost:5000/api"
+        "/api"
 
 });
 
@@ -30,5 +30,20 @@ axiosInstance.interceptors.request.use(
     }
 
 );
+
+// import axiosInstance
+// from "../services/axiosInstance";
+
+// export const markAttendance =
+// async () => {
+
+//     const response =
+//     await axiosInstance.post(
+//         "/attendance/mark"
+//     );
+
+//     return response.data;
+
+// };
 
 export default axiosInstance;

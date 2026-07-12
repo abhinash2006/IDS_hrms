@@ -41,19 +41,25 @@ async (
 };
 
 const getExpenses =
-async () => {
+async (employeeId) => {
 
-    const [rows] =
-        await db.query(
-            `
-            SELECT *
-            FROM expense_claims
-            ORDER BY id DESC
-            `
-        );
+    let query = `
+        SELECT *
+        FROM expense_claims
+    `;
+    let params = [];
 
+    if (employeeId) {
+        query += " WHERE employee_id = ?";
+        params.push(employeeId);
+    }
+
+    query += " ORDER BY id DESC";
+
+    const [rows] = await db.query(query, params);
     return rows;
 };
+
 const getExpenseById =
 async (id) => {
 
@@ -128,7 +134,8 @@ const getPaginatedExpenses =
 async (
     page,
     limit,
-    search
+    search,
+    employeeId
 ) => {
 
     const offset =
@@ -138,15 +145,21 @@ async (
         `
         SELECT *
         FROM expense_claims
+        WHERE 1 = 1
         `;
 
     let params = [];
 
+    if (employeeId) {
+        query += " AND employee_id = ?";
+        params.push(employeeId);
+    }
+
     if (search) {
 
         query += `
-            WHERE claim_title LIKE ?
-            OR status LIKE ?
+            AND (claim_title LIKE ?
+            OR status LIKE ?)
         `;
 
         params.push(
@@ -178,22 +191,29 @@ async (
 
 const getTotalExpensesCount =
 async (
-    search
+    search,
+    employeeId
 ) => {
 
     let query =
         `
         SELECT COUNT(*) AS total
         FROM expense_claims
+        WHERE 1 = 1
         `;
 
     let params = [];
 
+    if (employeeId) {
+        query += " AND employee_id = ?";
+        params.push(employeeId);
+    }
+
     if (search) {
 
         query += `
-            WHERE claim_title LIKE ?
-            OR status LIKE ?
+            AND (claim_title LIKE ?
+            OR status LIKE ?)
         `;
 
         params.push(
@@ -219,4 +239,4 @@ module.exports = {
     deleteExpense,
     getPaginatedExpenses,
     getTotalExpensesCount   
-};
+};
